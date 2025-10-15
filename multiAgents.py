@@ -109,32 +109,7 @@ class MultiAgentSearchAgent(Agent):
 class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
-    """
-
-    def getAction(self, gameState):
-        """
-        Returns the minimax action from the current gameState using self.depth
-        and self.evaluationFunction.
-
-        Here are some method calls that might be useful when implementing minimax.
-
-        gameState.getLegalActions(agentIndex):
-        Returns a list of legal actions for an agent
-        agentIndex=0 means Pacman, ghosts are >= 1
-
-        gameState.generateSuccessor(agentIndex, action):
-        Returns the successor game state after an agent takes an action
-
-        gameState.getNumAgents():
-        Returns the total number of agents in the game
-
-        gameState.isWin():
-        Returns whether or not the game state is a winning state
-
-        gameState.isLose():
-        Returns whether or not the game state is a losing state
-        """
-        "*** YOUR CODE HERE ***"
+    """    
     
     #idea: for every depth layer in the tree, generate sucessor gamestates and determine the max value from current max (-inf default) and 
     # the minimized value from the ghost's turn
@@ -166,9 +141,63 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 minValue = min(minValue, min(nextGameState, depth, ghostindex + 1))
         return minValue
         
-        #find minimax path from root
-        
+    #find minimax path from root
+    def getAction(self, gameState):
+        """
+        Returns the minimax action from the current gameState using self.depth
+        and self.evaluationFunction.
 
+        Here are some method calls that might be useful when implementing minimax.
+
+        gameState.getLegalActions(agentIndex):
+        Returns a list of legal actions for an agent
+        agentIndex=0 means Pacman, ghosts are >= 1
+
+        gameState.generateSuccessor(agentIndex, action):
+        Returns the successor game state after an agent takes an action
+
+        gameState.getNumAgents():
+        Returns the total number of agents in the game
+
+        gameState.isWin():
+        Returns whether or not the game state is a winning state
+
+        gameState.isLose():
+        Returns whether or not the game state is a losing state
+        """
+
+        # Overall, this function must, call the max and min function, propagate leaf node values to upper layers till root is reached, and lastly return best action for Pacman!
+        
+        # Starts by figuring out how many agents (pacman + ghosts) there are so we can use this to loop later
+        agentAmount = gameState.getNumAgents()
+        currentDepth = 0
+
+        while currentDepth < self.depth:
+            # We get the max action returned from max and create the next gameState to be utilized by the next ghosts
+            maxAction = self.max(gameState, self.index)
+            currentGameState = gameState.generateSuccessor(self.index, maxAction)
+
+            # Now that Max has made a move, ALL ghosts individually take an action
+            while (self.index + 1) % agentAmount is not 0:
+                self.index += 1
+                minAction = self.min(currentGameState, self.index)
+                currentGameState = gameState.generateSuccessor(self.index, minAction)
+
+
+            # Updates current depth to the next batch of actions
+            currentDepth += 1
+
+
+        
+        
+        agentIndex = 0
+        gameState.getLegalActions(agentIndex)
+        
+        actions = gameState.generateSuccessor(agentIndex, action)
+
+        gameState.getNumAgents()
+
+        return action
         #util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
