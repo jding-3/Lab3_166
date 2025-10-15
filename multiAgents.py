@@ -115,14 +115,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
     # the minimized value from the ghost's turn
     def max(self, gameState, depth):
         if(gameState.isWin() or gameState.isLose() or depth + 1 == self.depth):
-            return self.scoreEvaluationFunction(gameState)
+            return scoreEvaluationFunction(gameState)
             
         maxValue = float('-inf')
         actions = gameState.getLegalActions(0)
 
         for action in actions:
             nextGameState = gameState.generateSuccessor(0, action)
-            maxValue = max(maxValue, min(nextGameState, depth + 1, 1))
+            maxValue = max(maxValue, self.min(nextGameState, depth + 1, 1))
         return maxValue
             
     #minimizer, representing ghost turn
@@ -130,18 +130,18 @@ class MinimaxAgent(MultiAgentSearchAgent):
         minValue = float('inf')
 
         if(gameState.isWin() or gameState.isLose()):
-            return self.scoreEvaluationFunction(gameState)
+            return scoreEvaluationFunction(gameState)
            
         actions = gameState.getLegalActions(ghostindex)
         for action in actions:
             nextGameState = gameState.generateSuccessor(ghostindex, action)
             if(ghostindex == gameState.getNumAgents() - 1):
-                minValue = min(minValue, max(nextGameState, depth))
+                minValue = min(minValue, self.max(nextGameState, depth))
             else:
-                minValue = min(minValue, min(nextGameState, depth, ghostindex + 1))
+                minValue = min(minValue, self.min(nextGameState, depth, ghostindex + 1))
         return minValue
         
-    #find minimax path from root
+    # Overall, this function must, call the max and min function, propagate leaf node values to upper layers till root is reached, and lastly return best action for Pacman!    
     def getAction(self, gameState):
         """
         Returns the minimax action from the current gameState using self.depth
@@ -166,38 +166,22 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
 
-        # Overall, this function must, call the max and min function, propagate leaf node values to upper layers till root is reached, and lastly return best action for Pacman!
-        
-        # Starts by figuring out how many agents (pacman + ghosts) there are so we can use this to loop later
-        agentAmount = gameState.getNumAgents()
-        currentDepth = 0
+        # Starts by setting an initial best score and best action along with getting pacman's options to iterate for all ghost's
+        bestScore = float('-inf')
+        bestAction = None
+        pacmanActions = gameState.getLegalActions(0)
 
-        while currentDepth < self.depth:
-            # We get the max action returned from max and create the next gameState to be utilized by the next ghosts
-            maxAction = self.max(gameState, self.index)
-            currentGameState = gameState.generateSuccessor(self.index, maxAction)
+        for action in pacmanActions:
+            currentGameState = gameState.generateSuccessor(self.index, action)
+            # It turns out that since min accounts already for recursively handling several ghosts, we can immediately get a score to compare. 0 and 1 are used to signify current depth and ghost index.
+            currentScore = self.min(currentGameState, 0, 1)
+            
+            # Comparing the current score with that of the best score to update when applicable
+            if currentScore > bestScore:
+                bestScore = currentScore
+                bestAction = action
 
-            # Now that Max has made a move, ALL ghosts individually take an action
-            while (self.index + 1) % agentAmount is not 0:
-                self.index += 1
-                minAction = self.min(currentGameState, self.index)
-                currentGameState = gameState.generateSuccessor(self.index, minAction)
-
-
-            # Updates current depth to the next batch of actions
-            currentDepth += 1
-
-
-        
-        
-        agentIndex = 0
-        gameState.getLegalActions(agentIndex)
-        
-        actions = gameState.generateSuccessor(agentIndex, action)
-
-        gameState.getNumAgents()
-
-        return action
+        return bestAction 
         #util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
