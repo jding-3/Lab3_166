@@ -112,7 +112,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     def getAction(self, gameState):
-         """
+        """
         Returns the minimax action from the current gameState using self.depth
         and self.evaluationFunction.
 
@@ -135,35 +135,36 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        #idea: for every depth layer in the tree, generate sucessor gamestates and determine the max value from current max (-inf default) and 
-        # the minimized value from the ghost's turn
-        def max(gamestate, depth):
-            if(gameState.isWin() or gameState.isLose() or depth + 1 == self.depth):
-                return scoreEvaluationFunction(gamestate)
+    
+    #idea: for every depth layer in the tree, generate sucessor gamestates and determine the max value from current max (-inf default) and 
+    # the minimized value from the ghost's turn
+    def max(self, gameState, depth):
+        if(gameState.isWin() or gameState.isLose() or depth + 1 == self.depth):
+            return self.scoreEvaluationFunction(gameState)
             
-            maxValue = -1
-            actions = gameState.getLegalActions(0)
+        maxValue = float('-inf')
+        actions = gameState.getLegalActions(0)
 
-            for action in actions:
-                nextGameState = gameState.generateSuccessor(0, action)
-                maxValue = max(maxValue, min(nextGameState, depth + 1, 1))
-            return maxValue
+        for action in actions:
+            nextGameState = gameState.generateSuccessor(0, action)
+            maxValue = max(maxValue, min(nextGameState, depth + 1, 1))
+        return maxValue
             
-        #minimizer, representing ghost turn
-        def min(gamestate, depth, ghostindex):
-            minValue = 1
+    #minimizer, representing ghost turn
+    def min(self, gameState, depth, ghostindex):
+        minValue = float('inf')
 
-            if(gameState.isWin() or gameState.isLose()):
-                return scoreEvaluationFunction(gameState)
-            
-            actions = gameState.getLegalActions(ghostindex)
-            for action in actions:
-                nextGameState = gameState.generateSuccessor(ghostindex, action)
-                if(ghostindex == gameState.getNumAgents() - 1):
-                    minValue = min(minValue, max(nextGameState, depth))
-                else:
-                    minValue = min(minValue, min(nextGameState, depth, ghostindex + 1))
-            return minValue
+        if(gameState.isWin() or gameState.isLose()):
+            return self.scoreEvaluationFunction(gameState)
+           
+        actions = gameState.getLegalActions(ghostindex)
+        for action in actions:
+            nextGameState = gameState.generateSuccessor(ghostindex, action)
+            if(ghostindex == gameState.getNumAgents() - 1):
+                minValue = min(minValue, max(nextGameState, depth))
+            else:
+                minValue = min(minValue, min(nextGameState, depth, ghostindex + 1))
+        return minValue
         
         #find minimax path from root
         
