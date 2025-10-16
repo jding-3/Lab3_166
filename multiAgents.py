@@ -112,61 +112,53 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     def getAction(self, gameState):
-         """
-        Returns the minimax action from the current gameState using self.depth
-        and self.evaluationFunction.
-
-        Here are some method calls that might be useful when implementing minimax.
-
-        gameState.getLegalActions(agentIndex):
-        Returns a list of legal actions for an agent
-        agentIndex=0 means Pacman, ghosts are >= 1
-
-        gameState.generateSuccessor(agentIndex, action):
-        Returns the successor game state after an agent takes an action
-
-        gameState.getNumAgents():
-        Returns the total number of agents in the game
-
-        gameState.isWin():
-        Returns whether or not the game state is a winning state
-
-        gameState.isLose():
-        Returns whether or not the game state is a losing state
-        """
-        "*** YOUR CODE HERE ***"
-        #idea: for every depth layer in the tree, generate sucessor gamestates and determine the max value from current max (-inf default) and 
+         #idea: for every depth layer in the tree, generate sucessor gamestates and determine the max value from current max (-inf default) and 
         # the minimized value from the ghost's turn
-        def max(gamestate, depth):
-            if(gameState.isWin() or gameState.isLose() or depth + 1 == self.depth):
-                return scoreEvaluationFunction(gamestate)
+        def maxValue(gameState, depth):
+            currDepth = depth + 1
+            if(gameState.isWin() or gameState.isLose() or  currDepth == self.depth):
+                return self.evaluationFunction(gameState)
             
-            maxValue = -1
+            maxValue_ = float('-inf')
             actions = gameState.getLegalActions(0)
 
             for action in actions:
-                nextGameState = gameState.generateSuccessor(0, action)
-                maxValue = max(maxValue, min(nextGameState, depth + 1, 1))
-            return maxValue
+                nextgameState = gameState.generateSuccessor(0, action)
+                maxValue_ = max(maxValue_, minValue(nextgameState, currDepth, 1))
+            return maxValue_
             
         #minimizer, representing ghost turn
-        def min(gamestate, depth, ghostindex):
-            minValue = 1
+        def minValue(gameState, depth, ghostindex):
+            minValue_ = float('inf')
 
             if(gameState.isWin() or gameState.isLose()):
-                return scoreEvaluationFunction(gameState)
+                return self.evaluationFunction(gameState)
             
             actions = gameState.getLegalActions(ghostindex)
             for action in actions:
-                nextGameState = gameState.generateSuccessor(ghostindex, action)
+                nextgameState = gameState.generateSuccessor(ghostindex, action)
                 if(ghostindex == gameState.getNumAgents() - 1):
-                    minValue = min(minValue, max(nextGameState, depth))
+                    minValue_ = min(minValue_, maxValue(nextgameState, depth))
                 else:
-                    minValue = min(minValue, min(nextGameState, depth, ghostindex + 1))
-            return minValue
+                    minValue_ = min(minValue_, minValue(nextgameState, depth, ghostindex + 1))
+            return minValue_
         
         #find minimax path from root
-        
+        currScore = float('-inf')
+        bestAction = None
+        pacmanActions = gameState.getLegalActions(0)
+
+        for action in pacmanActions:
+            nextgameState = gameState.generateSuccessor(0, action)
+            # It turns out that since min accounts already for recursively handling several ghosts, we can immediately get a score to compare. 0 and 1 are used to signify current depth and ghost index.
+            newScore = minValue(nextgameState, 0, 1)
+            
+            # Comparing the current score with that of the best score to update when applicable
+            if newScore > currScore:
+                currScore = newScore
+                bestAction = action
+
+        return bestAction 
 
         #util.raiseNotDefined()
 
