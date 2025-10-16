@@ -107,10 +107,6 @@ class MultiAgentSearchAgent(Agent):
         self.depth = int(depth)
 
 class MinimaxAgent(MultiAgentSearchAgent):
-    """
-    Your minimax agent (question 2)
-    """
-
     def getAction(self, gameState):
          #idea: for every depth layer in the tree, generate sucessor gamestates and determine the max value from current max (-inf default) and 
         # the minimized value from the ghost's turn
@@ -160,7 +156,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         return bestAction 
 
-        #util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
