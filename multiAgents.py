@@ -108,8 +108,7 @@ class MultiAgentSearchAgent(Agent):
 
 class MinimaxAgent(MultiAgentSearchAgent):
     def getAction(self, gameState):
-         #idea: for every depth layer in the tree, generate sucessor gamestates and determine the max value from current max (-inf default) and 
-        # the minimized value from the ghost's turn
+        #idea: for every depth layer in the tree, generate sucessor gamestates and determine the max value from current max (-inf default) and the minimized value from the ghost's turn
         def maxValue(gameState, depth):
             currDepth = depth + 1
             if(gameState.isWin() or gameState.isLose() or  currDepth == self.depth):
@@ -123,7 +122,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 maxValue_ = max(maxValue_, minValue(nextgameState, currDepth, 1))
             return maxValue_
             
-        #minimizer, representing ghost turn
+        #minimizer, representing ghost's turn. minValue() iterates recursively for ALL ghosts until the ghost index maxes out then returns to maxValue() again
         def minValue(gameState, depth, ghostindex):
             minValue_ = float('inf')
 
@@ -139,7 +138,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                     minValue_ = min(minValue_, minValue(nextgameState, depth, ghostindex + 1))
             return minValue_
         
-        #find minimax path from root
+        # The rest starts to find the best possible action for the root node (pacman)
         currScore = float('-inf')
         bestAction = None
         pacmanActions = gameState.getLegalActions(0)
@@ -149,7 +148,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             # It turns out that since min accounts already for recursively handling several ghosts, we can immediately get a score to compare. 0 and 1 are used to signify current depth and ghost index.
             newScore = minValue(nextgameState, 0, 1)
             
-            # Comparing the current score with that of the best score to update when applicable
+            # The following statement occurs after all possible actions are observed within Pacman's one action. For this action, we write down the best score so far and iterate for another action pacman has until all actions are analyzed.
             if newScore > currScore:
                 currScore = newScore
                 bestAction = action
